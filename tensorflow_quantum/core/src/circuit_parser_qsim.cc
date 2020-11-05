@@ -521,8 +521,9 @@ tensorflow::Status QsimCircuitFromProgram(
   }
 
   // Build fused circuit.
+  qsim::BasicGateFuser<qsim::IO, QsimGate>::Parameter param;
   *fused_circuit = qsim::BasicGateFuser<qsim::IO, QsimGate>().FuseGates(
-      circuit->num_qubits, circuit->gates);
+      param, circuit->num_qubits, circuit->gates);
   return Status::OK();
 }
 

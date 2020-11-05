@@ -263,31 +263,30 @@ inline void ApplyGateDagger(const Simulator& simulator, const Gate& gate,
 
   if (gate.num_qubits == 1 && gate.matrix.size() == 8) {
     std::copy(gate.matrix.begin(), gate.matrix.begin() + 8, matrix);
-    qsim::Matrix2Dagger(matrix);
+    qsim::MatrixDagger(2, matrix);
     simulator.ApplyGate1(gate.qubits[0], matrix, state);
   } else if (gate.num_qubits == 2 && gate.matrix.size() == 32) {
     std::copy(gate.matrix.begin(), gate.matrix.begin() + 32, matrix);
-    qsim::Matrix4Dagger(matrix);
+    qsim::MatrixDagger(4, matrix);
     // Here we should have gate.qubits[0] < gate.qubits[1].
     simulator.ApplyGate2(gate.qubits[0], gate.qubits[1], matrix, state);
   }
 }
 
 // Fuse gates. Dagger. Then apply. Slight modification from qsim.
-template <typename Gate, typename Simulator, typename State>
+template <typename Simulator, typename Gate>
 inline void ApplyFusedGateDagger(const Simulator& simulator, const Gate& gate,
-                                 State& state) {
-  typename Simulator::fp_type matrix[32];
-
-  if (gate.num_qubits == 1 && gate.pmaster->matrix.size() == 8) {
-    qsim::CalcMatrix2(gate.gates, matrix);
-    qsim::Matrix2Dagger(matrix);
-    simulator.ApplyGate1(gate.qubits[0], matrix, state);
-  } else if (gate.num_qubits == 2 && gate.pmaster->matrix.size() == 32) {
-    // Here we should have gate.qubits[0] < gate.qubits[1].
-    qsim::CalcMatrix4(gate.qubits[0], gate.qubits[1], gate.gates, matrix);
-    qsim::Matrix4Dagger(matrix);
-    simulator.ApplyGate2(gate.qubits[0], gate.qubits[1], matrix, state);
+                                 typename Simulator::State& state) {
+  if (gate.kind != gate::kMeasurement) {
+    using fp_type = typename Simulator::fp_type;
+    auto matrix = qsim::CalculateFusedMatrix<fp_type>(gate);
+    qsim::MatrixDagger(unsigned{1} << gate.qubits.size(), matrix);
+    if (gate.parent->controlled_by.size() == 0) {
+      simulator.ApplyGate(gate.qubits, matrix.data(), state);
+    } else {
+      simulator.ApplyControlledGate(gate.qubits, gate.parent->controlled_by,
+                                    gate.parent->cmask, matrix.data(), state);
+    }
   }
 }
 

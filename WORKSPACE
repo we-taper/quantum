@@ -67,11 +67,22 @@ http_archive(
 
 http_archive(
     name = "qsim",
-    sha256 = "7e5fe6c909d0007488f910d57ed765729133437f5c5f88085fa6deb544cb97dc",
-    strip_prefix = "qsim-0.3.1",
-    urls = ["https://github.com/quantumlib/qsim/archive/v0.3.1.zip"],
+    sha256 = "e2da0d7a44b2ae649b1bb96162388a6cc2084d23778a70b9dd26fb2e37e6a324",
+    strip_prefix = "qsim-0.6.0-dev-20201103",
+    urls = ["https://github.com/quantumlib/qsim/archive/v0.6.0-dev+20201103.zip"],
 )
-
+# http_archive(
+#     name = "qsim",
+#     sha256 = "3f9d1ec400ec19f97ab1d6d3fb3fcee4304868b404794efaba41e773f26d2448",
+#     strip_prefix = "qsim-0.5.1",
+#     urls = ["https://github.com/quantumlib/qsim/archive/v0.5.1.zip"],
+# )
+# http_archive(
+#     name = "qsim",
+#     sha256 = "7e5fe6c909d0007488f910d57ed765729133437f5c5f88085fa6deb544cb97dc",
+#     strip_prefix = "qsim-0.3.1",
+#     urls = ["https://github.com/quantumlib/qsim/archive/v0.3.1.zip"],
+# )
 # Added for crosstool in tensorflow.
 http_archive(
     name = "io_bazel_rules_closure",
