@@ -154,7 +154,7 @@ tensorflow::Status ComputeExpectationQsim(const tfq::proto::PauliSum& p_sum,
     QsimCircuit main_circuit;
     std::vector<qsim::GateFused<QsimGate>> fused_circuit;
 
-    status = QsimCircuitFromPauliTerm(term, ss.num_qubits_, &main_circuit,
+    status = QsimCircuitFromPauliTerm(term, ss.num_qubits, &main_circuit,
                                       &fused_circuit);
 
     if (!status.ok()) {
@@ -207,7 +207,7 @@ tensorflow::Status ComputeSampledExpectationQsim(
     QsimCircuit main_circuit;
     std::vector<qsim::GateFused<QsimGate>> fused_circuit;
 
-    status = QsimZBasisCircuitFromPauliTerm(term, ss.num_qubits_, &main_circuit,
+    status = QsimZBasisCircuitFromPauliTerm(term, ss.num_qubits, &main_circuit,
                                             &fused_circuit);
     if (!status.ok()) {
       return status;
@@ -233,7 +233,7 @@ tensorflow::Status ComputeSampledExpectationQsim(
       //  so it is safe to just use atoi.
       bool unused = absl::SimpleAtoi(pair.qubit_id(), &location);
       // Parity functions use little-endian indexing
-      parity_bits.push_back(ss.num_qubits_ - location - 1);
+      parity_bits.push_back(ss.num_qubits - location - 1);
     }
 
     // Compute the BitMask.
@@ -277,7 +277,7 @@ inline void ApplyGateDagger(const Simulator& simulator, const Gate& gate,
 template <typename Simulator, typename Gate>
 inline void ApplyFusedGateDagger(const Simulator& simulator, const Gate& gate,
                                  typename Simulator::State& state) {
-  if (gate.kind != gate::kMeasurement) {
+  if (gate.kind != qsim::gate::kMeasurement) {
     using fp_type = typename Simulator::fp_type;
     auto matrix = qsim::CalculateFusedMatrix<fp_type>(gate);
     qsim::MatrixDagger(unsigned{1} << gate.qubits.size(), matrix);
@@ -326,7 +326,7 @@ tensorflow::Status AccumulateOperators(
       QsimCircuit main_circuit;
       std::vector<qsim::GateFused<QsimGate>> fused_circuit;
 
-      status = QsimCircuitFromPauliTerm(term, ss.num_qubits_, &main_circuit,
+      status = QsimCircuitFromPauliTerm(term, ss.num_qubits, &main_circuit,
                                         &fused_circuit);
       if (!status.ok()) {
         return status;
