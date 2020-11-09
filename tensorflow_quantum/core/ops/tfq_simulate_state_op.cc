@@ -125,7 +125,7 @@ class TfqSimulateStateOp : public tensorflow::OpKernel {
 
     // Begin simulation.
     int largest_nq = 1;
-    State sv = StateSpace(largest_nq, tfq_for).CreateState();
+    State sv = StateSpace(largest_nq, tfq_for).Create(largest_nq);
 
     // Simulate programs one by one. Parallelizing over state vectors
     // we no longer parallelize over circuits. Each time we encounter a
@@ -137,7 +137,7 @@ class TfqSimulateStateOp : public tensorflow::OpKernel {
       if (nq > largest_nq) {
         // need to switch to larger statespace.
         largest_nq = nq;
-        sv = ss.CreateState();
+        sv = ss.Create(largest_nq);
       }
       ss.SetStateZero(sv);
       for (int j = 0; j < fused_circuits[i].size(); j++) {
@@ -178,7 +178,7 @@ class TfqSimulateStateOp : public tensorflow::OpKernel {
 
     auto DoWork = [&](int start, int end) {
       int largest_nq = 1;
-      State sv = StateSpace(largest_nq, tfq_for).CreateState();
+      State sv = StateSpace(largest_nq, tfq_for).Create(largest_nq);
       for (int i = start; i < end; i++) {
         int nq = num_qubits[i];
         Simulator sim = Simulator(nq, tfq_for);
@@ -186,7 +186,7 @@ class TfqSimulateStateOp : public tensorflow::OpKernel {
         if (nq > largest_nq) {
           // need to switch to larger statespace.
           largest_nq = nq;
-          sv = ss.CreateState();
+          sv = ss.Create(largest_nq);
         }
         ss.SetStateZero(sv);
         for (int j = 0; j < fused_circuits[i].size(); j++) {
