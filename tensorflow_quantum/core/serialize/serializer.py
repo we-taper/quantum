@@ -546,9 +546,16 @@ def serialize_circuit(circuit_inp):
         op for op in moment if isinstance(op, cirq.ControlledOperation)]
         new_ops = dict()
         for op in controlled_ops:
+            # CCX gate can be understood as doubly controlled X gate
             tfq_compatible = op.sub_operation
-            tfq_compatible._tfq_control_qubits = op.controls
-            tfq_compatible._tfq_control_values = op.control_values
+            if isinstance(tfq_compatible.gate, cirq.CCXPowGate):
+                cxx_op = tfq_compatible
+                tfq_compatible = cirq.X.on(cxx_op.qubits[-1])
+                tfq_compatible._tfq_control_qubits = cxx_op.qubits[:-1]+ op.controls
+                tfq_compatible._tfq_control_values = ((1,), (1,)) + op.control_values
+            else:
+                tfq_compatible._tfq_control_qubits = op.controls
+                tfq_compatible._tfq_control_values = op.control_values
             new_ops[op.qubits] = tfq_compatible
 
         circuit[i] = cirq.Moment(
